@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>찻자리</title>
+<meta name="description" content="모니터 구석에 띄워 두는 라인 드로잉 다도. 직접 집고, 붓고, 기다리는 작은 찻자리.">
+<meta property="og:title" content="찻자리">
+<meta property="og:description" content="모니터 구석에 띄워 두는 라인 드로잉 다도">
+<meta property="og:image" content="https://deepgreenhill.github.io/chajari-app/assets/og.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root {
+  --bg: #000;
+  --ink: 236, 232, 222;
+  --tea: 190, 214, 128;
+  --water: 160, 214, 240;
+  --line: rgba(var(--ink), 0.14);
+  --dim: rgba(var(--ink), 0.55);
+  --text: rgba(var(--ink), 0.88);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 15px; line-height: 1.75; letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+header.top { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+.mark { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; text-decoration: none; }
+.mark img { width: 26px; height: 26px; }
+nav.top a { color: var(--dim); text-decoration: none; font-size: 14px; margin-left: 18px; }
+nav.top a:hover { color: rgba(var(--ink), 1); }
+
+/* ---- 첫 화면 ---- */
+.hero { padding: 64px 0 28px; text-align: center; }
+.hero h1 { margin: 0; font-weight: 600; font-size: 44px; letter-spacing: -0.02em; }
+.hero .lead { margin: 10px 0 0; font-size: 17px; color: var(--text); }
+.hero .sub { margin: 6px 0 0; color: var(--dim); }
+
+/* 위젯 창 그대로: 둥근 검은 판, 얇은 테두리, 위 가운데에서 시계 방향으로 찻물색이 차오른다 */
+.widget { position: relative; margin: 40px auto 0; max-width: 820px; border-radius: 16px; background: #000; }
+.widget video, .widget img { display: block; width: 100%; height: auto; border-radius: 16px; }
+.widget svg.rim { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.widget svg.rim path { fill: none; stroke-linecap: round; }
+.widget .base { stroke: rgba(var(--ink), 0.16); stroke-width: 1; }
+.widget .fill { stroke: rgba(var(--tea), 0.9); stroke-width: 1.6; stroke-dasharray: 100; stroke-dashoffset: 100; animation: steep 14s cubic-bezier(.45,.05,.4,1) infinite; }
+@keyframes steep { 0% { stroke-dashoffset: 100; opacity: 1; } 78% { stroke-dashoffset: 30; opacity: 1; } 92% { stroke-dashoffset: 30; opacity: 0; } 100% { stroke-dashoffset: 100; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .widget .fill { animation: none; stroke-dashoffset: 40; } }
+.caption { text-align: center; color: var(--dim); font-size: 13px; margin-top: 12px; }
+
+/* ---- 내려받기 ---- */
+section { padding: 72px 0 8px; }
+h2 { font-size: 22px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+h2 + .note { margin-top: 0; }
+.note { color: var(--dim); margin: 0 0 22px; }
+h3 { font-size: 16px; font-weight: 600; margin: 34px 0 10px; }
+.dl { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); }
+.btn {
+  position: relative; display: block; padding: 16px 18px 15px; border-radius: 12px; text-decoration: none;
+  border: 1px solid var(--line); transition: border-color .25s, background .25s;
+}
+.btn:hover { border-color: rgba(var(--tea), 0.7); background: rgba(var(--tea), 0.05); }
+.btn b { display: block; font-weight: 600; font-size: 15px; }
+.btn span { display: block; color: var(--dim); font-size: 13px; margin-top: 2px; }
+.btn.mine { border-color: rgba(var(--tea), 0.75); }
+.btn.mine::after { content: "내 컴퓨터"; position: absolute; top: 13px; right: 14px; font-size: 11px; color: rgba(var(--tea), 0.95); }
+.meta { color: var(--dim); font-size: 13px; margin-top: 14px; }
+
+/* ---- 탭 ---- */
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 3px; margin-bottom: 8px; }
+.tabs button {
+  font: inherit; font-size: 14px; color: var(--dim); background: none; border: 0; border-radius: 7px; padding: 6px 16px; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: rgba(var(--ink), 1); background: rgba(var(--ink), 0.08); }
+.panel[hidden] { display: none; }
+
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 18px 0 0; }
+ol.steps > li { counter-increment: s; position: relative; padding: 0 0 18px 40px; }
+ol.steps > li::before {
+  content: counter(s); position: absolute; left: 0; top: 2px; width: 24px; height: 24px; border-radius: 50%;
+  border: 1px solid var(--line); font-size: 12px; line-height: 22px; text-align: center; color: var(--dim);
+}
+ol.steps > li::after { content: ""; position: absolute; left: 12px; top: 30px; bottom: 6px; border-left: 1px dashed var(--line); }
+ol.steps > li:last-child::after { display: none; }
+.path { white-space: nowrap; color: rgba(var(--ink), 1); }
+.hint { color: var(--dim); font-size: 13.5px; }
+kbd {
+  font: inherit; font-size: 12.5px; padding: 1px 7px; border-radius: 5px; border: 1px solid var(--line); color: rgba(var(--ink), 0.95);
+}
+
+/* ---- 사용 가이드 ---- */
+table { width: 100%; border-collapse: collapse; }
+td { padding: 11px 0; border-top: 1px solid var(--line); vertical-align: top; }
+td:first-child { width: 30%; padding-right: 16px; color: rgba(var(--ink), 1); white-space: nowrap; }
+tr:last-child td { border-bottom: 1px solid var(--line); }
+.icons td:first-child { white-space: nowrap; }
+.ic { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; vertical-align: -6px; margin-right: 8px; border: 1px solid var(--line); border-radius: 6px; }
+.ic svg { width: 12px; height: 12px; stroke: rgba(var(--ink), 0.9); fill: none; stroke-width: 1.2; }
+.ic .t { font-size: 10px; font-weight: 600; }
+
+.teas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px; }
+.tea { border: 1px solid var(--line); border-radius: 12px; padding: 16px 16px 14px; }
+.tea b { font-weight: 600; }
+.tea .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+.tea p { margin: 6px 0 0; color: var(--dim); font-size: 13.5px; }
+
+.split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: center; }
+.light { border-radius: 14px; padding: 10px; background: linear-gradient(135deg, #e9e5dc, #d9e1e6); }
+.light img { display: block; width: 100%; height: auto; }
+
+ul.calm { list-style: none; padding: 0; margin: 0; }
+ul.calm li { padding: 12px 0 12px 22px; border-top: 1px solid var(--line); position: relative; }
+ul.calm li:last-child { border-bottom: 1px solid var(--line); }
+ul.calm li::before { content: ""; position: absolute; left: 2px; top: 22px; width: 8px; height: 1px; background: rgba(var(--tea), 0.9); }
+
+details { border-top: 1px solid var(--line); padding: 4px 0; }
+details:last-of-type { border-bottom: 1px solid var(--line); }
+summary { cursor: pointer; padding: 10px 0; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: "+"; display: inline-block; width: 20px; color: var(--dim); }
+details[open] summary::before { content: "–"; }
+details p { margin: 0 0 12px 20px; color: var(--dim); }
+
+footer { padding: 80px 0 60px; color: var(--dim); font-size: 13px; text-align: center; }
+footer img { width: 28px; height: 28px; opacity: .9; display: block; margin: 0 auto 10px; }
+
+@media (max-width: 720px) {
+  .hero { padding-top: 36px; }
+  .hero h1 { font-size: 34px; }
+  .dl, .teas { grid-template-columns: 1fr; }
+  .split { grid-template-columns: 1fr; }
+  nav.top { display: none; }
+  td:first-child { white-space: normal; width: 36%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#"><img src="assets/icon-512.png" alt="">찻자리</a>
+    <nav class="top"><a href="#download">내려받기</a><a href="#install">설치</a><a href="#guide">사용 가이드</a></nav>
+  </header>
+
+  <div class="hero">
+    <h1>찻자리</h1>
+    <p class="lead">모니터 구석에 띄워 두는 라인 드로잉 다도</p>
+    <p class="sub">안내도 타이머도 없어요. 직접 집고, 붓고, 기다리는 작은 찻자리.</p>
+    <div class="widget" id="widget">
+      <video autoplay muted loop playsinline preload="auto" poster="assets/poster.png" aria-label="찻자리 플레이 장면">
+        <source src="assets/hero.webm" type="video/webm">
+        <img src="assets/poster.png" alt="찻자리 플레이 장면">
+      </video>
+      <svg class="rim" aria-hidden="true"><path class="base"/><path class="fill" pathLength="100"/></svg>
+    </div>
+    <p class="caption">창 테두리가 온도계예요. 우리는 동안엔 찻물색으로 차올라요.</p>
+  </div>
+
+  <section id="download">
+    <h2>내려받기</h2>
+    <p class="note">무료예요. 설치 파일 하나로 끝나고, 관리자 권한도 필요 없어요.</p>
+    <div class="dl">
+      <a class="btn" data-os="win" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-win-x64.exe">
+        <b>Windows</b><span>Windows 10 · 11 (64비트)</span>
+      </a>
+      <a class="btn" data-os="mac-arm" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-arm64.dmg">
+        <b>Mac · 애플 실리콘</b><span>M1 · M2 · M3 · M4 칩</span>
+      </a>
+      <a class="btn" data-os="mac-intel" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-x64.dmg">
+        <b>Mac · 인텔</b><span>Intel 칩 Mac</span>
+      </a>
+    </div>
+    <p class="meta"><span id="ver">최신 버전</span> · 맥이 어떤 칩인지 모르겠다면 화면 왼쪽 위 <span class="path">사과 메뉴 › 이 Mac에 관하여</span>에서 ‘칩’을 보세요.</p>
+  </section>
+
+  <section id="install">
+    <h2>설치 방법</h2>
+    <p class="note">개인이 만든 프로그램이라 처음 한 번은 운영체제가 확인을 물어요. 아래대로 하면 다음부터는 바로 열려요.</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="t-win" aria-controls="p-win" aria-selected="true">Windows</button>
+      <button role="tab" id="t-mac" aria-controls="p-mac" aria-selected="false">Mac</button>
+    </div>
+
+    <div class="panel" id="p-win" role="tabpanel" aria-labelledby="t-win">
+      <ol class="steps">
+        <li>내려받은 <span class="path">chajari-win-x64.exe</span>를 열어요.</li>
+        <li>파란 <span class="path">Windows의 PC 보호</span> 창이 뜨면 <span class="path">추가 정보</span>를 누르고 <span class="path">실행</span>을 눌러요.
+          <div class="hint">코드 서명 인증서가 없는 개인 제작 프로그램이라 보이는 안내예요.</div></li>
+        <li>설치는 저절로 끝나요. 화면 오른쪽 아래에 찻자리가 떠요.
+          <div class="hint">바탕화면과 시작 메뉴에 ‘찻자리’가 생겨요. 다음부터는 거기서 열어요.</div></li>
+      </ol>
+    </div>
+
+    <div class="panel" id="p-mac" role="tabpanel" aria-labelledby="t-mac" hidden>
+      <ol class="steps">
+        <li>내려받은 <span class="path">chajari-mac-….dmg</span>를 열고, 왼쪽 <span class="path">Chajari</span>를 오른쪽 <span class="path">Applications</span> 폴더로 끌어다 놓아요.</li>
+        <li>응용 프로그램 폴더에서 <span class="path">Chajari</span>를 열어요. ‘확인할 수 없음’ 창이 뜨면 <span class="path">완료</span>를 눌러 닫아요.</li>
+        <li><span class="path">시스템 설정 › 개인정보 보호 및 보안</span>을 열고 아래쪽 ‘보안’에서 <span class="path">그래도 열기</span>를 눌러요. 암호를 넣으면 열려요.
+          <div class="hint">macOS 14 이하라면 앱을 우클릭 › <span class="path">열기</span>로도 돼요.</div></li>
+        <li>화면 오른쪽 아래에 찻자리가 떠요. 데스크톱을 옮겨도 따라와요.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="guide">
+    <h2>사용 가이드</h2>
+    <p class="note">기본은 불친절해요. 무엇을 할지는 직접 정해요. 막히면 위젯의 책 아이콘과 ? 아이콘을 열어 보세요.</p>
+
+    <h3>손으로 하기</h3>
+    <table>
+      <tr><td>들기</td><td>다구를 누른 채 끌어요. 놓으면 제자리로 돌아가요.</td></tr>
+      <tr><td>기울여 따르기</td><td>든 채로 마우스 휠을 굴려요. 아래로 굴리면 더 기울고, 위로 굴리면 세워져요. 놓을 때까지 그 각도를 유지해요.<div class="hint">트랙패드는 두 손가락으로 위아래로 쓸어요.</div></td></tr>
+      <tr><td>찻잎 넣기</td><td>차시를 차통(녹차 · 홍차 · 보이차)에 담갔다가 다관 위에서 기울여요.</td></tr>
+      <tr><td>뚜껑</td><td>다관 위에서 놓으면 덮여요. 덮으면 덜 식어요.</td></tr>
+      <tr><td>마시기</td><td>찻잔을 든 채 휠을 굴려요. 70°가 넘으면 앗 뜨거워요.</td></tr>
+      <tr><td>잎 버리기</td><td>빈 다관을 퇴수기 위에서 크게 기울여요.</td></tr>
+      <tr><td>흘린 물 · 잎</td><td>차건으로 탁자를 문질러 닦아요. 젖은 차건은 퇴수기 위로 들어 올려 휠로 짜요. 흘린 물은 그냥 둬도 천천히 말라요.</td></tr>
+      <tr><td>퇴수기 비우기</td><td>퇴수기를 들고 창 오른쪽 끝 너머로 가져가서 기울여요.</td></tr>
+    </table>
+
+    <h3>창 테두리 = 온도계</h3>
+    <p>위 가운데에서 시계 방향으로 차올라요. 든 그릇이나 마우스를 올린 그릇의 온도를 보여 주고, 작은 눈금이 그 차의 알맞은 온도예요. 다관에서 차가 우러나는 동안에는 찻물색으로 진하기를 보여 줘요. 옅은 띠가 ‘알맞음’이에요. 숫자는 왼쪽 아래 한 줄에만 나와요.</p>
+
+    <h3>세 가지 차</h3>
+    <div class="teas">
+      <div class="tea"><b><span class="dot" style="background:rgb(206,222,112)"></span>녹차 · 우전</b>
+        <p>75°쯤. 끓는 물을 숙우에 따라 한 김 식혀서 붓고 1분.</p></div>
+      <div class="tea"><b><span class="dot" style="background:rgb(232,120,58)"></span>홍차 · 다즐링</b>
+        <p>95° 넘게. 끓는 물을 바로 붓고 뚜껑을 덮어 2분 30초.</p></div>
+      <div class="tea"><b><span class="dot" style="background:rgb(188,70,36)"></span>보이차 · 숙차</b>
+        <p>98°. 한 번 붓고 바로 버려 씻은 뒤(세차), 다시 붓고 20초.</p></div>
+    </div>
+    <p class="hint" style="margin-top:12px">다 마시면 오른쪽 아래에 맛과 조언이 한 줄 나와요. 숫자는 말하지 않아요. 우리는 동안 창을 가려 둬도 시간은 그대로 흘러요.</p>
+
+    <h3>위젯 창</h3>
+    <p class="hint" style="margin-top:-4px">마우스를 올리면 오른쪽 위에 작은 아이콘이 나타나요.</p>
+    <table class="icons">
+      <tr><td><span class="ic"><svg viewBox="0 0 12 12"><circle cx="4" cy="3" r=".6"/><circle cx="8" cy="3" r=".6"/><circle cx="4" cy="6" r=".6"/><circle cx="8" cy="6" r=".6"/><circle cx="4" cy="9" r=".6"/><circle cx="8" cy="9" r=".6"/></svg></span>이동</td><td>잡고 끌어서 창을 옮겨요. 검정 배경에서는 빈 곳을 끌어도 돼요.</td></tr>
+      <tr><td><span class="ic"><svg viewBox="0 0 12 12"><path d="M6 3 2 2v7l4 1 4-1V2L6 3v7"/></svg></span>다도 가이드</td><td>차마다 순서가 있어요. 따라 하면 단계가 저절로 체크돼요.</td></tr>
+      <tr><td><span class="ic"><span class="t">?</span></span>조작법</td><td>손으로 하는 방법을 짧게 보여 줘요.</td></tr>
+      <tr><td><span class="ic"><svg viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7"/><rect x="4.5" y="4.5" width="3" height="3" style="fill:currentColor"/></svg></span>배경</td><td>검정 ↔ 투명. 투명이면 바탕화면 위에 검은 선만 남아요. 다구 위가 아니면 클릭이 뒤 창으로 지나가고, 창 가장자리를 잡으면 옮겨져요.</td></tr>
+      <tr><td><span class="ic"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.2"/><circle cx="6" cy="6" r="1.4"/></svg></span>항상 위</td><td>다른 창 위에 늘 떠 있게 고정하거나 풀어요.</td></tr>
+      <tr><td><span class="ic"><span class="t">M</span></span>크기</td><td>S · M · L 세 가지 크기예요.</td></tr>
+      <tr><td><span class="ic"><svg viewBox="0 0 12 12"><path d="M3 3l6 6M9 3l-6 6"/></svg></span>닫기</td><td>찻자리를 끝내요. <kbd>Esc</kbd>는 잠깐 숨기기예요(창을 보고 있을 때만).</td></tr>
+    </table>
+
+    <div class="split" style="margin-top:34px">
+      <div class="light"><img src="assets/clear.png" alt="투명 배경 모드: 바탕화면 위에 검은 선으로만 그려진 찻자리"></div>
+      <div>
+        <h3 style="margin-top:0">투명 배경</h3>
+        <p>검정 모드를 그대로 뒤집은 모습이에요. 음영 없이 찐한 검은 선만 남고, 물과 찻물 색은 그대로예요. 밝은 바탕화면 위에 조용히 얹어 두기 좋아요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="calm">
+    <h2>안심하고 켜 두기</h2>
+    <p class="note">일하다 잠깐 마음을 가라앉히려고 만들었어요.</p>
+    <ul class="calm">
+      <li>인터넷에 연결하지 않아요. 무엇도 보내거나 받지 않아요.</li>
+      <li>키보드를 엿보지 않아요. 전역 단축키도 없어요. <kbd>Esc</kbd>는 찻자리 창을 보고 있을 때만 들어요.</li>
+      <li>관리자 권한 없이 내 계정에만 설치돼요.</li>
+      <li>소리가 나지 않아요.</li>
+      <li>위치와 크기, 배경은 기억해 둬요. 다음에 켜면 그 자리에 있어요.</li>
+    </ul>
+  </section>
+
+  <section id="faq">
+    <h2>자주 묻는 것</h2>
+    <details><summary>창이 안 보여요</summary><p>모니터 구성이 바뀌어 화면 밖에 있었다면, 다시 열 때 오른쪽 아래 기본 자리로 돌아와요. <kbd>Esc</kbd>로 숨겼다면 작업 표시줄이나 Dock에서 찻자리를 눌러요.</p></details>
+    <details><summary>휠을 굴려도 따라지지 않아요</summary><p>다구를 누른 채로(손에 든 상태에서) 휠을 굴려야 해요. 손을 떼면 제자리로 돌아가요.</p></details>
+    <details><summary>Mac에서 ‘손상되었기 때문에 열 수 없습니다’가 떠요</summary><p>내려받는 중에 파일이 깨졌을 수 있어요. 다시 내려받아 설치해 보세요. 그래도 같다면 위의 Mac 설치 방법 3번(그래도 열기)을 확인해요.</p></details>
+    <details><summary>새 버전은 어떻게 받아요?</summary><p>이 페이지에서 다시 내려받아 설치하면 돼요. 설정과 창 위치는 그대로 남아요.</p></details>
+    <details><summary>지우고 싶어요</summary><p>Windows는 <span class="path">설정 › 앱 › 설치된 앱 › 찻자리 › 제거</span>. Mac은 응용 프로그램 폴더의 Chajari를 휴지통으로 옮겨요.</p></details>
+  </section>
+
+  <footer>
+    <img src="assets/icon-512.png" alt="">
+    찻자리 <span id="ver2"></span> · 무료 · 혼자 조용히 만든 작은 프로그램이에요
+  </footer>
+</div>
+
+<script>
+// 위젯 테두리 게이지: 둥근 사각형을 위 가운데에서 시작해 시계 방향으로 한 바퀴 그리는 경로
+(() => {
+  const box = document.getElementById('widget'), [base, fill] = box.querySelectorAll('path');
+  const draw = () => {
+    const w = box.clientWidth, h = box.clientHeight, i = 3.5, r = 12, x0 = i, y0 = i, x1 = w - i, y1 = h - i;
+    const d = `M${w / 2} ${y0} H${x1 - r} A${r} ${r} 0 0 1 ${x1} ${y0 + r} V${y1 - r} A${r} ${r} 0 0 1 ${x1 - r} ${y1} H${x0 + r} A${r} ${r} 0 0 1 ${x0} ${y1 - r} V${y0 + r} A${r} ${r} 0 0 1 ${x0 + r} ${y0} Z`;
+    base.setAttribute('d', d); fill.setAttribute('d', d);
+  };
+  new ResizeObserver(draw).observe(box); draw();
+})();
+
+// 내 컴퓨터 알아보기: 맞는 설치 파일 강조, 설치 방법 탭도 맞춰 연다
+(() => {
+  const ua = navigator.userAgent, isMac = /Macintosh|Mac OS X/.test(ua) && !/iPhone|iPad/.test(ua), isWin = /Windows/.test(ua);
+  let os = isWin ? 'win' : isMac ? 'mac-arm' : null;
+  if (isMac) {   // 그래픽 칩 이름으로 인텔 맥을 가늠한다 (모르면 애플 실리콘)
+    try { const gl = document.createElement('canvas').getContext('webgl'), ext = gl && gl.getExtension('WEBGL_debug_renderer_info');
+      const r = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : ''; if (/Intel|AMD|Radeon/i.test(r)) os = 'mac-intel'; } catch (e) {}
+  }
+  if (os) document.querySelector(`.btn[data-os="${os}"]`).classList.add('mine');
+  const tabs = { win: document.getElementById('t-win'), mac: document.getElementById('t-mac') };
+  const show = k => { for (const [n, t] of Object.entries(tabs)) { t.setAttribute('aria-selected', n === k); document.getElementById('p-' + n).hidden = n !== k; } };
+  tabs.win.onclick = () => show('win'); tabs.mac.onclick = () => show('mac');
+  if (isMac) show('mac');
+})();
+
+// 최신 버전과 파일 크기 (안 되면 그냥 '최신 버전')
+fetch('https://api.github.com/repos/deepgreenhill/chajari-app/releases/latest').then(r => r.ok ? r.json() : null).then(j => {
+  if (!j) return;
+  const v = j.tag_name; document.getElementById('ver').textContent = v + ' · ' + new Date(j.published_at).toLocaleDateString('ko-KR');
+  document.getElementById('ver2').textContent = v;
+  for (const a of j.assets) {
+    const b = document.querySelector(`.btn[href$="/${a.name}"] span`); if (b) b.textContent += ` · ${Math.round(a.size / 1048576)}MB`;
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>
