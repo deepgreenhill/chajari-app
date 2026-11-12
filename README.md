@@ -2,12 +2,7 @@
 
 모니터 구석에 띄워 두는 라인 드로잉 다도.
 
-**내려받기 · 설치 방법 · 사용 가이드 → https://deepgreenhill.github.io/chajari-app/**
+**내려받기 · 설치 방법 · 사용 가이드 → https://chajari.pages.dev/**
 
-| | |
-|---|---|
-| Windows 10 · 11 | [chajari-win-x64.exe](https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-win-x64.exe) |
-| Mac · 애플 실리콘 | [chajari-mac-arm64.dmg](https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-arm64.dmg) |
-| Mac · 인텔 | [chajari-mac-x64.dmg](https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-x64.dmg) |
-
-이 저장소에는 다운로드 페이지와 설치 파일만 있어요.
+이 저장소에는 다운로드 페이지(`site/`, Cloudflare Pages)와 설치 파일(Releases)만 있어요.
+`functions/`는 chajari.pages.dev/download/… 주소로 최신 설치 파일을 이어 주는 작은 기능이고, `docs/`는 예전 주소에서 새 주소로 넘겨 줘요.

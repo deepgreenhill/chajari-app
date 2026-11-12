@@ -7,8 +7,9 @@
 <meta name="description" content="모니터 구석에 띄워 두는 라인 드로잉 다도. 직접 집고, 붓고, 기다리는 작은 찻자리.">
 <meta property="og:title" content="찻자리">
 <meta property="og:description" content="모니터 구석에 띄워 두는 라인 드로잉 다도">
-<meta property="og:image" content="https://deepgreenhill.github.io/chajari-app/assets/og.png">
+<meta property="og:image" content="https://chajari.pages.dev/assets/og.png">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://chajari.pages.dev/">
 <meta name="theme-color" content="#000000">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -167,13 +168,13 @@ footer img { width: 28px; height: 28px; opacity: .9; display: block; margin: 0 a
     <h2>내려받기</h2>
     <p class="note">무료예요. 설치 파일 하나로 끝나고, 관리자 권한도 필요 없어요.</p>
     <div class="dl">
-      <a class="btn" data-os="win" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-win-x64.exe">
+      <a class="btn" data-os="win" href="/download/chajari-win-x64.exe">
         <b>Windows</b><span>Windows 10 · 11 (64비트)</span>
       </a>
-      <a class="btn" data-os="mac-arm" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-arm64.dmg">
+      <a class="btn" data-os="mac-arm" href="/download/chajari-mac-arm64.dmg">
         <b>Mac · 애플 실리콘</b><span>M1 · M2 · M3 · M4 칩</span>
       </a>
-      <a class="btn" data-os="mac-intel" href="https://github.com/deepgreenhill/chajari-app/releases/latest/download/chajari-mac-x64.dmg">
+      <a class="btn" data-os="mac-intel" href="/download/chajari-mac-x64.dmg">
         <b>Mac · 인텔</b><span>Intel 칩 Mac</span>
       </a>
     </div>
@@ -315,12 +316,12 @@ footer img { width: 28px; height: 28px; opacity: .9; display: block; margin: 0 a
 })();
 
 // 최신 버전과 파일 크기 (안 되면 그냥 '최신 버전')
-fetch('https://api.github.com/repos/deepgreenhill/chajari-app/releases/latest').then(r => r.ok ? r.json() : null).then(j => {
-  if (!j) return;
-  const v = j.tag_name; document.getElementById('ver').textContent = v + ' · ' + new Date(j.published_at).toLocaleDateString('ko-KR');
-  document.getElementById('ver2').textContent = v;
-  for (const a of j.assets) {
-    const b = document.querySelector(`.btn[href$="/${a.name}"] span`); if (b) b.textContent += ` · ${Math.round(a.size / 1048576)}MB`;
+fetch('/api/latest').then(r => r.ok ? r.json() : null).then(j => {
+  if (!j || !j.tag) return;
+  document.getElementById('ver').textContent = j.tag + ' · ' + new Date(j.date).toLocaleDateString('ko-KR');
+  document.getElementById('ver2').textContent = j.tag;
+  for (const [name, size] of Object.entries(j.sizes || {})) {
+    const b = document.querySelector(`.btn[href$="/${name}"] span`); if (b) b.textContent += ` · ${Math.round(size / 1048576)}MB`;
   }
 }).catch(() => {});
 </script>
